@@ -10,3 +10,8 @@ CREATE TABLE users (
     CONSTRAINT check_email_or_phone_not_null
         CHECK (phone IS NOT NULL OR email IS NOT NULL)
 );
+
+CREATE TABLE vips (
+    vip_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    end_date TIMESTAMP WITH TIME ZONE NOT NULL
+);
