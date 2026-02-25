@@ -29,3 +29,12 @@ CREATE TABLE supports (
     image_url VARCHAR(200),
     password VARCHAR(512)
 )
+
+-- ACTION_LOG
+CREATE TABLE action_logs (
+    log_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    ip_address INET NOT NULL,
+    action_type VARCHAR(100),
+    description TEXT,
+    timestamp TIMESTAMP
+)
