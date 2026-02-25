@@ -54,3 +54,7 @@ CREATE TYPE discount_codes (
     CONSTRAINT check_amount_or_percent_not_null
         CHECK (amount IS NOT NULL OR percent IS NOT NULL)
 )
+CREATE TABLE vips (
+    vip_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    end_date TIMESTAMP WITH TIME ZONE NOT NULL
+);
