@@ -135,3 +135,20 @@ CREATE TABLE vips (
 
     plan_id INT REFERENCES plans(plan_id) ON DELETE RESTRICT -- OWNS realtions
 );
+
+-- STATUS ENUM
+CREATE TYPE STATUS_TYPE AS ENUM('PENDIGN','REJECTED','ACCEPTED'); 
+-- BOOTH_REQUEST TABLE
+CREATE TABLE booth_requests (
+    user_id INT REFERENCES users(user_id) ON DELETE RESTRICT,
+    employee_id INT REFERENCES supports(employee_id) ON DELETE RESTRICT,
+    request_id INT GENERATED ALWAYS AS IDENTITY,
+    PRIMARY KEY(user_id, employee_id, request_id),
+
+    date DATE NOT NULL,
+    reason TEXT,
+    booth_name VARCHAR(100) NOT NULL,
+    user_description TEXT,
+    status STATUS_TYPE NOT NULL DEFAULT 'PENDING'
+
+)
