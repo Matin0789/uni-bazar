@@ -21,6 +21,18 @@ CREATE TABLE booths (
     status_end_date DATE
 );
 
+-- GOLDEN_BOOTH TABLES
+CREATE TABLE golden_booths (
+    booth_id INT NOT NULL,
+    plan_id INT GENERATED ALWAYS AS IDENTITY,
+    end_date DATE NOT NULL,
+
+    PRIMARY KEY (booth_id, plan_id),
+
+    FOREIGN KEY (booth_id)
+        REFERENCES booths(booth_id)
+        ON DELETE CASCADE
+);
 
 
 -- SUPPORT TABLES
@@ -35,6 +47,7 @@ CREATE TABLE supports (
 -- ACTION_LOG TABLES
 CREATE TABLE action_logs (
     log_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    employee_id INT
     ip_address INET NOT NULL,
     action_type VARCHAR(100),
     description TEXT,
