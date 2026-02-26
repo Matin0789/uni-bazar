@@ -19,16 +19,16 @@ CREATE TABLE booths (
     description TEXT,
     status_count INT CHECK (status_count BETWEEN 0 AND 6)
     status_end_date DATE
-)
+);
 
 -- SUPPORT TABLES
 CREATE TABLE supports (
-    Employee_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    employee_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     fname VARCHAR(100) NOT NULL,
     Lname VARCHAR(100) NOT NULL,
     image_url VARCHAR(200),
     password VARCHAR(512)
-)
+);
 
 -- ACTION_LOG TABLES
 CREATE TABLE action_logs (
@@ -37,7 +37,7 @@ CREATE TABLE action_logs (
     action_type VARCHAR(100),
     description TEXT,
     timestamp TIMESTAMP
-)
+);
 
 -- DISCOUNT_TYPE ENUMS
 CREATE TYPE DISCOUNT_TYPE AS ENUM ('FIXED', 'PERCENTAGE');
@@ -53,7 +53,7 @@ CREATE TYPE discount_codes (
 
     CONSTRAINT check_amount_or_percent_not_null
         CHECK (amount IS NOT NULL OR percent IS NOT NULL)
-)
+);
 
 -- VIP TABELS
 CREATE TABLE vips (
