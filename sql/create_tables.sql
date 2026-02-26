@@ -1,3 +1,28 @@
+-- SUPPORT TABLES
+CREATE TABLE supports (
+    employee_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    fname VARCHAR(100) NOT NULL,
+    Lname VARCHAR(100) NOT NULL,
+    image_url VARCHAR(200),
+    password VARCHAR(512)
+);
+
+
+-- PLAN_TYPE ENUMS
+CREATE TYPE PLAN_TYPE AS ENUM ('GOLDEN','VIP');
+-- PLAN TABELS
+CREATE TABLE plans (
+    plan_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    period DATE NOT NULL, 
+    price BIGINT NOT NULL,
+
+    -- ADD realations
+    employee_id INT,
+    FOREIGN KEY (employee_id)
+        REFERENCES supports(employee_id)
+        ON DELETE RESTRICT
+);
+
 -- USER TABLES
 CREATE TABLE users (
     user_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -31,7 +56,7 @@ CREATE TABLE golden_booths (
 
     FOREIGN KEY (booth_id)
         REFERENCES booths(booth_id)
-        ON DELETE CASCADE
+        ON DELETE CASCADE,
 
     plan_id INT REFERENCES plans(plan_id) ON DELETE RESTRICT
 );
@@ -49,16 +74,6 @@ CREATE TABLE story (
         REFERENCES booths(booth_id)
         ON DELETE CASCADE
 );
-
--- SUPPORT TABLES
-CREATE TABLE supports (
-    employee_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    fname VARCHAR(100) NOT NULL,
-    Lname VARCHAR(100) NOT NULL,
-    image_url VARCHAR(200),
-    password VARCHAR(512)
-);
-
 -- ACTION_LOG TABLES
 CREATE TABLE action_logs (
     log_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -66,7 +81,7 @@ CREATE TABLE action_logs (
     ip_address INET NOT NULL,
     action_type VARCHAR(100),
     description TEXT,
-    timestamp TIMESTAMP
+    timestamp TIMESTAMP,
 
     FOREIGN KEY (employee_id)
         REFERENCES supports(employee_id)
@@ -80,30 +95,15 @@ CREATE TABLE discount_codes (
     code_id SERIAL PRIMARY KEY,
     employee_id INT,
     code VARCHAR(20) UNIQUE NOT NULL,
-    is_used BOOLEAN DEFAULT NOT NULL,
+    is_used BOOLEAN NOT NULL DEFAULT FALSE,
     expiration_date DATE,
-    discount_type DISCOUNT _TYPE NOT NULL,
+    discount_type DISCOUNT_TYPE NOT NULL,
     amount BIGINT,
     percent DECIMAL(5, 2) CHECK (percent BETWEEN 0 AND 100),
 
     CONSTRAINT check_amount_or_percent_not_null
-        CHECK (amount IS NOT NULL OR percent IS NOT NULL)
+        CHECK (amount IS NOT NULL OR percent IS NOT NULL),
     
-    FOREIGN KEY (employee_id)
-        REFERENCES supports(employee_id)
-        ON DELETE RESTRICT
-);
-
--- PLAN_TYPE ENUMS
-CREATE TYPE PLAN_TYPE AS ENUM ('GOLDEN','VIP');
--- PLAN TABELS
-CREATE TABLE plans (
-    plan_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    period DATE NOT NULL, 
-    price BIGINT NOT NULL,
-
-    -- ADD realations
-    employee_id INT,
     FOREIGN KEY (employee_id)
         REFERENCES supports(employee_id)
         ON DELETE RESTRICT
@@ -112,5 +112,7 @@ CREATE TABLE plans (
 -- VIP TABELS
 CREATE TABLE vips (
     vip_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    end_date TIMESTAMP WITH TIME ZONE NOT NULL
+    end_date TIMESTAMP WITH TIME ZONE NOT NULL,
+
+    plan_id INT REFERENCES plans(plan_id) ON DELETE RESTRICT
 );
