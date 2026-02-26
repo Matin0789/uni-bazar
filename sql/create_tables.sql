@@ -98,10 +98,14 @@ CREATE TYPE PLAN_TYPE AS ENUM ('GOLDEN','VIP');
 CREATE TABLE plans (
     plan_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     period DATE NOT NULL, 
-    price BIGINT NOT NULL
-    
-);
+    price BIGINT NOT NULL,
 
+    -- ADD realations
+    employee_id INT,
+    FOREIGN KEY (employee_id)
+        REFERENCES supports(employee_id)
+        ON DELETE RESTRICT
+);
 
 -- VIP TABELS
 CREATE TABLE vips (
