@@ -543,3 +543,16 @@ CREATE TABLE booth_requests (
     user_description TEXT,
     status status_type NOT NULL DEFAULT 'pending'
 );
+
+-- CONSTANT PRICES TABLE
+CREATE TYPE price_status AS ENUM ('Active', 'Inactive');
+
+CREATE TABLE constant_prices (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    description TEXT NOT NULL,
+    amount BIGINT NOT NULL, -- price amount
+    currency VARCHAR(3) NOT NULL DEFAULT 'IRR', -- ISO currency code
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP, -- creation timestamp
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP, -- last update timestamp
+    status price_status NOT NULL DEFAULT 'Active' -- current status of the price
+);
