@@ -1,6 +1,6 @@
-CREATE SCHEMA my_unibazar;
+CREATE SCHEMA uni_bazar;
 
-SET search_path TO my_unibazar;
+SET search_path TO uni_bazar;
 
 CREATE TYPE status_type AS ENUM('pending','rejected','accepted'); 
 CREATE TYPE plan_type AS ENUM ('Golden','VIP');
@@ -362,8 +362,9 @@ CREATE TABLE order_item_comment (
     id INT GENERATED ALWAYS AS IDENTITY,
     rating SMALLINT NOT NULL CHECK (rating BETWEEN 1 AND 5),
     description TEXT,
+    badge_id INT REFERENCES badges(id) ON DELETE RESTRICT,
 
-    badge_id INT REFERENCES badges(id) ON DELETE RESTRICT -- INCLUDE relation
+    PRIMARY KEY (item_id, id)
 );
 
 -- SHIPMENT TABLES
@@ -424,7 +425,6 @@ CREATE TABLE messages (
 -- JOIN_REQUESTS TABLE
 CREATE TABLE join_requests (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-
     user_id INT REFERENCES users(id) ON DELETE CASCADE,
     booth_id INT REFERENCES booths(id) ON DELETE CASCADE,
 
@@ -433,19 +433,28 @@ CREATE TABLE join_requests (
     UNIQUE (id, user_id, booth_id)
 );
 
-CREATE TABLE join_requests_permissions (
-    join_requests_id INT REFERENCES join_requests(user_id) ON DELETE RESTRICT,
-    join_requests_user_id INT REFERENCES join_requests(user_id) ON DELETE RESTRICT,
-    booth_id INT REFERENCES join_requests(booth_id) ON DELETE RESTRICT,
-    request_id INT REFERENCES join_requests(id) ON DELETE RESTRICT,
-    permission INT REFERENCES permissions(id) ON DELETE RESTRICT, 
-
-    PRIMARY KEY (join_requests_id, join_requests_user_id, request_id, permission)
-);
-
 CREATE TABLE permissions (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     description TEXT
+);
+
+CREATE TABLE join_requests_permissions (
+    join_requests_id INT,  
+    user_id INT,           
+    booth_id INT,          
+    permission INT,        
+
+    PRIMARY KEY (join_requests_id, user_id, booth_id, permission),
+
+    CONSTRAINT fk_join_requests_permissions_to_join_requests
+        FOREIGN KEY (join_requests_id, user_id, booth_id)
+        REFERENCES join_requests (id, user_id, booth_id) 
+        ON DELETE RESTRICT,
+
+    CONSTRAINT fk_join_requests_permissions_to_permissions
+        FOREIGN KEY (permission)
+        REFERENCES permissions (id)
+        ON DELETE RESTRICT
 );
 
 -- VIEW relation
@@ -473,16 +482,15 @@ CREATE TABLE golden_booths (
 );
 
 CREATE TABLE badge_approval (
-    id INT GENERATED ALWAYS AS IDENTITY,
-    employee_id INT REFERENCES supports(id) ON DELETE CASCADE ON UPDATE CASCADE,
-    
-    order_item_id INT REFERENCES order_item_comment(item_id) ON DELETE CASCADE ON UPDATE CASCADE,
-    comment_id INT REFERENCES order_item_comment(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    id BIGSERIAL PRIMARY KEY,
+    employee_id INT NOT NULL REFERENCES supports(id),
+    order_item_id INT NOT NULL,
+    comment_id INT NOT NULL,
 
-    PRIMARY KEY (id, employee_id, order_item_id, comment_id),
+    FOREIGN KEY (order_item_id, comment_id)
+        REFERENCES order_item_comment(item_id, id),
 
-    end_date DATE,
-    status status_type NOT NULL DEFAULT 'pending'
+    UNIQUE(employee_id, order_item_id, comment_id)
 );
 
 CREATE TABLE badge_badge_approval_assigned_to_booth (
