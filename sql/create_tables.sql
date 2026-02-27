@@ -36,7 +36,7 @@ CREATE TABLE users (
 );
 
 CREATE TABLE addresses (
-    id INT GENERATED ALWAYS AS IDENTITY,
+    id BIGINT GENERATED ALWAYS AS IDENTITY,
     user_id INT NOT NULL,
     province VARCHAR(100),
     city VARCHAR(100),
@@ -131,6 +131,26 @@ CREATE TABLE payments (
     payment_method payment_method NOT NULL,
     amount BIGINT NOT NULL CHECK (amount > 0),
     transaction_ref VARCHAR(255) UNIQUE NOT NULL
+);
+
+-- SHIPMENT TABLES
+CREATE TABLE shipments (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    address_id BIGINT NOT NULL,
+    address_user_id BIGINT NOT NULL,
+    order_id BIGINT NOT NULL REFERENCES orders(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    shipping_method VARCHAR(50) NOT NULL,
+    tracking_code VARCHAR(150) UNIQUE,
+    carrier VARCHAR(100), -- Transportation Company
+    shipped_at TIMESTAMPTZ,
+    delivered_at TIMESTAMPTZ,
+
+    CONSTRAINT fk_shipments_to_addresses
+        FOREIGN KEY (address_id, address_user_id)
+        REFERENCES addresses(id, user_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
 );
 
 -- EVENT ENUM
