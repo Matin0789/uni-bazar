@@ -54,6 +54,23 @@ CREATE TABLE addresses (
         ON UPDATE CASCADE
 )
 
+-- CART TABLES
+CREATE TABLE carts (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    user_id INT NOT NULL,
+    is_locked BOOLEAN DEFAULT FALSE,
+
+    CONSTRAINT pk_carts (id, user_id)
+
+    CONSTRAINT fk_carts_user_id
+        FOREIGN KEY
+        REFERENCES users(user_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
+COMMENT ON COLUMN carts.is_locked IS 'For VIP Locked_Cart feature';
+
 -- EVENT ENUM
 CREATE TYPE PLAN_TYPE AS ENUM('VIEW_BOOTH','VIEW_PRODUCT','ADD_TO_CART','PURCHASE');
 -- EVENT TABLES
