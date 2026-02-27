@@ -1,6 +1,6 @@
 -- SUPPORT TABLES
 CREATE TABLE supports (
-    employee_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     fname VARCHAR(100) NOT NULL,
     Lname VARCHAR(100) NOT NULL,
     image_url VARCHAR(200),
@@ -11,7 +11,7 @@ CREATE TABLE supports (
 CREATE TYPE PLAN_TYPE AS ENUM ('GOLDEN','VIP');
 -- PLAN TABELS
 CREATE TABLE plans (
-    plan_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     period DATE NOT NULL, 
     price BIGINT NOT NULL,
 
@@ -24,7 +24,7 @@ CREATE TABLE plans (
 
 -- USER TABLES
 CREATE TABLE users (
-    user_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     fname VARCHAR(100) NOT NULL,
     lname VARCHAR(100) NOT NULL,
     phone VARCHAR(20),
@@ -35,6 +35,10 @@ CREATE TABLE users (
         CHECK (phone IS NOT NULL OR email IS NOT NULL)
 );
 
+CREATE TABLE addresses (
+    
+)
+
 -- EVENT ENUM
 CREATE TYPE PLAN_TYPE AS ENUM('VIEW_BOOTH','VIEW_PRODUCT','ADD_TO_CART','PURCHASE');
 -- EVENT TABLES
@@ -43,12 +47,12 @@ CREATE TABLE events (
     event_type PLAN_TYPE NOT NULL,
     event_timestamp TIMESTAMP,
     
-    user_id INT REFERENCES users(user_id) ON DELETE RESTRICT -- attends relation
+    user_id INT REFERENCES users(id) ON DELETE RESTRICT -- attends relation
 );
 
 -- BOOTH TABLES
 CREATE TABLE booths (
-    booth_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     booth_name VARCHAR(100) NOT NULL,
     image_url VARCHAR(200),
     description TEXT,
@@ -65,7 +69,7 @@ CREATE TABLE golden_booths (
     PRIMARY KEY (booth_id, id),
 
     FOREIGN KEY (booth_id)
-        REFERENCES booths(booth_id)
+        REFERENCES booths(id)
         ON DELETE CASCADE,
 
     plan_id INT REFERENCES plans(plan_id) ON DELETE RESTRICT -- OWNS realations
@@ -81,21 +85,21 @@ CREATE TABLE story (
     PRIMARY KEY (booth_id, story_id),
 
     FOREIGN KEY (booth_id)
-        REFERENCES booths(booth_id)
+        REFERENCES booths(id)
         ON DELETE CASCADE
 );
 
 -- ACTION_LOG TABLES
 CREATE TABLE action_logs (
-    log_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    employee_id INT,
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    support_id INT,
     ip_address INET NOT NULL,
     action_type VARCHAR(100),
     description TEXT,
     timestamp TIMESTAMP,
 
-    FOREIGN KEY (employee_id)
-        REFERENCES supports(employee_id)
+    FOREIGN KEY (support_id)
+        REFERENCES supports(id)
         ON DELETE RESTRICT
 );
 
@@ -103,8 +107,8 @@ CREATE TABLE action_logs (
 CREATE TYPE DISCOUNT_TYPE AS ENUM ('FIXED', 'PERCENTAGE');
 -- DISCOUNT_CODE TABLES
 CREATE TABLE discount_codes (
-    code_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    employee_id INT,
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    support_id INT,
     code VARCHAR(20) UNIQUE NOT NULL,
     is_used BOOLEAN NOT NULL DEFAULT FALSE,
     expiration_date DATE,
@@ -115,8 +119,8 @@ CREATE TABLE discount_codes (
     CONSTRAINT check_amount_or_percent_not_null
         CHECK (amount IS NOT NULL OR percent IS NOT NULL),
     
-    FOREIGN KEY (employee_id)
-        REFERENCES supports(employee_id)
+    FOREIGN KEY (support_id)
+        REFERENCES supports(id)
         ON DELETE RESTRICT
 );
 
@@ -141,7 +145,7 @@ CREATE TABLE vips (
 CREATE TYPE STATUS_TYPE AS ENUM('PENDIGN','REJECTED','ACCEPTED'); 
 -- BOOTH_REQUEST TABLE
 CREATE TABLE booth_requests (
-    user_id INT REFERENCES users(user_id) ON DELETE RESTRICT,
+    user_id INT REFERENCES users(id) ON DELETE RESTRICT,
     employee_id INT REFERENCES supports(employee_id) ON DELETE RESTRICT,
     request_id INT GENERATED ALWAYS AS IDENTITY,
     PRIMARY KEY(user_id, employee_id, request_id),
