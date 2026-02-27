@@ -198,7 +198,7 @@ CREATE TABLE action_logs (
 );
 
 -- DISCOUNT_TYPE ENUMS
-CREATE TYPE discount_type AS ENUM ('FIXED', 'PERCENTAGE');
+CREATE TYPE discount_type AS ENUM ('fixed', 'percentage');
 -- DISCOUNT_CODE TABLES
 CREATE TABLE discount_codes (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -244,7 +244,7 @@ CREATE TABLE vips (
 );
 
 -- STATUS ENUM
-CREATE TYPE status_type AS ENUM('PENDING','REJECTED','ACCEPTED'); 
+CREATE TYPE status_type AS ENUM('pending','rejected','accepted'); 
 -- BOOTH_REQUEST TABLE
 CREATE TABLE booth_requests (
     user_id INT REFERENCES users(id) ON DELETE RESTRICT,
@@ -256,5 +256,5 @@ CREATE TABLE booth_requests (
     reason TEXT,
     booth_name VARCHAR(100) NOT NULL,
     user_description TEXT,
-    status status_type NOT NULL DEFAULT 'PENDING'
+    status status_type NOT NULL DEFAULT 'pending'
 );
