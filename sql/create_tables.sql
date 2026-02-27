@@ -55,38 +55,6 @@ CREATE TABLE addresses (
         ON UPDATE CASCADE
 );
 
--- CART TABLES
-CREATE TABLE carts (
-    id INT GENERATED ALWAYS AS IDENTITY,
-    user_id INT NOT NULL,
-    is_locked BOOLEAN DEFAULT FALSE,
-
-    CONSTRAINT pk_carts PRIMARY KEY (id, user_id),
-
-    CONSTRAINT fk_carts_user_id
-        FOREIGN KEY (user_id)
-        REFERENCES users(id)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE
-);
-
-COMMENT ON COLUMN carts.is_locked IS 'For VIP Locked_Cart feature';
-
-CREATE TABLE cart_items (
-    id INT GENERATED ALWAYS AS IDENTITY,
-    cart_id INT NOT NULL,
-    cart_user_id INT NOT NULL,
-    reserve_end TIMESTAMPTZ NOT NULL, -- Lock_End_Date
-
-    CONSTRAINT pk_cart_items PRIMARY KEY (id, cart_id, cart_user_id),
-
-    CONSTRAINT fk_cart_items_to_carts
-        FOREIGN KEY (cart_id, cart_user_id) 
-        REFERENCES carts(id, user_id)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE
-);
-
 -- PRODUCT TABLE
 CREATE TYPE product_category AS ENUM ('Good', 'Service');
 
@@ -140,10 +108,69 @@ CREATE TABLE time_tables (
         FOREIGN KEY (product_id) 
         REFERENCES products(id) 
         ON DELETE CASCADE
+        ON UPDATE CASCADE,
+
+    CONSTRAINT check_time_range
+        CHECK (end_time > start_time)
+);
+
+-- CART TABLES
+CREATE TABLE carts (
+    id INT GENERATED ALWAYS AS IDENTITY,
+    user_id INT NOT NULL,
+    is_locked BOOLEAN DEFAULT FALSE,
+
+    CONSTRAINT pk_carts PRIMARY KEY (id, user_id),
+
+    CONSTRAINT fk_carts_user_id
+        FOREIGN KEY (user_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
+COMMENT ON COLUMN carts.is_locked IS 'For VIP Locked_Cart feature';
+
+CREATE TABLE cart_items (
+    id INT GENERATED ALWAYS AS IDENTITY,
+    cart_id INT NOT NULL,
+    cart_user_id INT NOT NULL,
+
+    -- Attribute for VIP users
+    reserve_end TIMESTAMPTZ NOT NULL, -- Lock_End_Date
+
+    CONSTRAINT pk_cart_items PRIMARY KEY (id, cart_id, cart_user_id),
+
+    CONSTRAINT fk_cart_items_to_carts
+        FOREIGN KEY (cart_id, cart_user_id) 
+        REFERENCES carts(id, user_id)
+        ON DELETE CASCADE
         ON UPDATE CASCADE
 
-    CONSTRAINT check_time_range 
-        CHECK (end_time > start_time)
+    -- Identifying relationship for REFERENCES (to Goods)
+    good_product_id INT,
+    quantity INTEGER,
+
+    -- Identifying relationship for RESERVES (to Services)
+    service_product_id INT,
+    reserved_from TIMESTAMPTZ,
+    reserved_to TIMESTAMPTZ,
+
+
+    -- Foreign Keys for strict mapping
+    CONSTRAINT fk_cart_good FOREIGN KEY (good_product_id) REFERENCES products(id),
+    CONSTRAINT fk_cart_service FOREIGN KEY (service_product_id) REFERENCES products(id),
+
+    -- Business Logic Constraints
+    CONSTRAINT check_positive_quantity CHECK (quantity > 0),
+    CONSTRAINT check_reservation_period CHECK (reserved_to > reserved_from),
+    
+    -- Ensures the row is either a Good or a Service
+    CONSTRAINT check_exclusive_reference CHECK (
+        (good_product_id IS NOT NULL AND service_Product_ID IS NULL AND quantity IS NOT NULL) OR
+        (service_product_id IS NOT NULL AND good_product_ID IS NULL AND reserved_from IS NOT NULL)
+    )
+
 );
 
 -- ORDER TABLES
