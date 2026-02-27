@@ -106,11 +106,11 @@ CREATE TABLE products (
 );
 
 CREATE TABLE price_histories (
-    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id INT GENERATED ALWAYS AS IDENTITY,
     product_id INT NOT NULL,
     price BIGINT NOT NULL,
-    valid_from TIMESTAMPTZ NOT NULL,
-    valid_to TIMESTAMPTZ,
+    valid_from TIME NOT NULL,
+    valid_to TIME,
 
     CONSTRAINT pk_price_histories PRIMARY KEY (id, product_id),
 
@@ -121,6 +121,27 @@ CREATE TABLE price_histories (
         ON UPDATE CASCADE,
 
     CONSTRAINT check_dates CHECK (valid_to IS NULL OR Valid_from <= Valid_to)
+);
+
+CREATE TYPE days_of_week AS ENUM ('Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday');
+
+CREATE TABLE time_tables (
+    id INT GENERATED ALWAYS AS IDENTITY,
+    product_id INT NOT NULL,
+    work_day days_of_week NOT NULL,   
+    start_time TIMESTAMPTZ NOT NULL,
+    end_time TIMESTAMPTZ NOT NULL,
+
+    CONSTRAINT pk_time_tables PRIMARY KEY (id, product_id),
+
+    CONSTRAINT fk_time_tables_product_id
+        FOREIGN KEY (product_id) 
+        REFERENCES products(id) 
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+
+    CONSTRAINT check_time_range 
+        CHECK (end_time > start_time)
 );
 
 -- ORDER TABLES
