@@ -134,10 +134,18 @@ CREATE TABLE users_has_dicount_code (
 
 -- VIP TABELS
 CREATE TABLE vips (
-    vip_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    user_id INT NOT NULL,
     end_date TIMESTAMP WITH TIME ZONE NOT NULL,
 
-    user_id INT PRIMARY KEY REFERENCES users(user_id) ON DELETE CASCADE
+    CONSTRAINT pk_vips (id, user_id)
+
+    CONSTRAINT fk_vips_user_id
+        FOREIGN KEY
+        REFERENCES users(user_id) ON DELETE CASCADE
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+
     plan_id INT REFERENCES plans(plan_id) ON DELETE RESTRICT -- OWNS realtions
 );
 
