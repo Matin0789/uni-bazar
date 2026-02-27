@@ -232,8 +232,25 @@ CREATE TABLE booths (
     image_url VARCHAR(200),
     description TEXT,
     status_count INT CHECK (status_count BETWEEN 0 AND 6),
-    status_end_date DATE
+    status_end_date DATE,
+
+    -- CREATES relation
+    user_id INT,
+    employee_id INT,
+    request_id INT,
+    FOREIGN KEY(user_id, employee_id, request_id) REFERENCES booth_requests(user_id, employee_id, request_id) ON DELETE RESTRICT
+
 );
+
+CREATE TABLE join_request (
+    user_id NT REFERENCES users(id) ON DELETE RESTRICT,
+    booth_id NT REFERENCES booths(id) ON DELETE RESTRICT,
+    request_id INT GENERATED ALWAYS AS IDENTITY,
+
+    PRIMARY KEY (user_id, booth_id, request_id)
+);
+
+
 
 -- VIEW relation
 CREATE TABLE user_view_booth (
