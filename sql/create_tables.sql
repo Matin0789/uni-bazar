@@ -365,6 +365,7 @@ CREATE TABLE discount_codes (
     discount_type discount_type NOT NULL,
     amount BIGINT,
     percent DECIMAL(5, 2) CHECK (percent BETWEEN 0 AND 100),
+    booth_id INT REFERENCES booths(id) ON DELETE CASCADE, -- booths have discount_code relation
 
     CONSTRAINT check_amount_or_percent_not_null
         CHECK (amount IS NOT NULL OR percent IS NOT NULL),
