@@ -154,6 +154,15 @@ CREATE TABLE booths (
     status_end_date DATE
 );
 
+-- VIEW relation
+CREATE TABLE user_view_booth (
+    user_id INT REFERENCES users(id) ON DELETE RESTRICT,
+    booth_id INT REFERENCES booths(id) ON DELETE RESTRICT,
+    date DATE,
+
+    PRIMARY KEY (booth_id, user_id)
+);
+
 -- GOLDEN_BOOTH TABLES
 CREATE TABLE golden_booths (
     booth_id INT NOT NULL,
