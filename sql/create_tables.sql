@@ -113,6 +113,24 @@ CREATE TABLE time_tables (
         CHECK (end_time > start_time)
 );
 
+-- USER PRODUCT VIEWS TABLE
+CREATE TABLE user_product_views (
+    user_id BIGINT NOT NULL
+        REFERENCES users(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+
+    product_id BIGINT NOT NULL
+        REFERENCES products(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+
+    viewed_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    ip_address INET, -- viewer IP address
+
+    CONSTRAINT pk_user_product_views PRIMARY KEY (user_id, product_id)
+);
+
 -- CART TABLES
 CREATE TABLE carts (
     id INT GENERATED ALWAYS AS IDENTITY,
