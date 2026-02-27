@@ -99,6 +99,18 @@ CREATE TABLE orders (
     tracking_code VARCHAR(100) UNIQUE
 );
 
+CREATE TYPE payment_status AS ENUM ('Success', 'Failed', 'Pending');
+CREATE TYPE payment_method AS ENUM ('Online', 'Wallet');
+
+CREATE TABLE payments (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status payment_status DEFAULT 'Pending',
+    payment_method payment_method NOT NULL,
+    amount BIGINT,
+    transaction_ref VARCHAR(255) UNIQUE
+);
+
 -- EVENT ENUM
 CREATE TYPE PLAN_TYPE AS ENUM('VIEW_BOOTH','VIEW_PRODUCT','ADD_TO_CART','PURCHASE');
 -- EVENT TABLES
