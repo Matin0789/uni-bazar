@@ -404,6 +404,8 @@ CREATE TABLE booth_requests (
     user_id INT REFERENCES users(id) ON DELETE RESTRICT,
     employee_id INT REFERENCES supports(id) ON DELETE RESTRICT,
     request_id INT GENERATED ALWAYS AS IDENTITY,
+    account_no VARCHAR(30) NOT NULL,
+    
     PRIMARY KEY(user_id, employee_id, request_id),
 
     date DATE NOT NULL,
