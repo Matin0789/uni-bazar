@@ -55,6 +55,51 @@ CREATE TABLE addresses (
         ON UPDATE CASCADE
 );
 
+-- PAGE REQUESTS
+CREATE TYPE page_request_status AS ENUM ('Pending', 'Approved', 'Rejected');
+
+CREATE TABLE page_requests (
+    id INT GENERATED ALWAYS AS IDENTITY,
+    user_id INT NOT NULL REFERENCES users(id) 
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+
+    support_id INT NOT NULL REFERENCES supports(id) 
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+
+    support_reason TEXT NOT NULL,
+    description TEXT,
+    request_date TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    student_card_image_url TEXT,
+    status page_request_status NOT NULL DEFAULT 'Pending',
+
+    CONSTRAINT pk_page_requests PRIMARY KEY (id, user_id, support_id)
+);
+
+-- PAGE TABLE
+CREATE TYPE page_status AS ENUM ('Draft', 'Published', 'Archived');
+
+CREATE TABLE pages (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+
+    page_request_id NOT NULL,
+    page_request_user_id NOT NULL,
+    page_request_support_id NOT NULL,
+
+    title TEXT NOT NULL,
+    content TEXT,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP, -- last update timestamp
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    status page_status NOT NULL DEFAULT 'Draft'
+
+    CONSTRAINT fk_pages_to_page_requests
+        FOREIGN KEY (page_request_id, page_request_user_id, page_request_support_id) 
+        REFERENCES carts(id, user_id, support_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+);
+
 -- PRODUCT TABLE
 CREATE TYPE product_category AS ENUM ('Good', 'Service');
 
