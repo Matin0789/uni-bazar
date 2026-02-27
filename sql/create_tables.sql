@@ -245,12 +245,27 @@ CREATE TABLE booths (
 CREATE TABLE join_request (
     user_id NT REFERENCES users(id) ON DELETE RESTRICT,
     booth_id NT REFERENCES booths(id) ON DELETE RESTRICT,
-    request_id INT GENERATED ALWAYS AS IDENTITY,
+    id INT GENERATED ALWAYS AS IDENTITY,
 
-    PRIMARY KEY (user_id, booth_id, request_id)
+    PRIMARY KEY (user_id, booth_id, id)
 );
 
+-- WORKS_ON relation
+CREATE TABLE works_on (
+    request_id REFERENCES join_request(id) ON DELETE RESTRICT,
+    user_id NT REFERENCES users(id) ON DELETE RESTRICT,
+    booth_id NT REFERENCES booths(id) ON DELETE RESTRICT,
+    
+    PRIMARY KEY (user_id, booth_id, request_id),
 
+    perm_no SMALLINT NOT NULL
+    /*
+    0001 : 1 : Can_Modify_Own_Products
+    0010 : 2 : Can_Modify_All_Products
+    0100 : 4 : Can_Add_Product
+    1000 : 8 : Can_Edit_Booth_Info
+    */
+);
 
 -- VIEW relation
 CREATE TABLE user_view_booth (
