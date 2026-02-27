@@ -18,7 +18,7 @@ CREATE TABLE plans (
     -- ADD realations
     employee_id INT,
     FOREIGN KEY (employee_id)
-        REFERENCES supports(employee_id)
+        REFERENCES supports(id)
         ON DELETE RESTRICT
 );
 
@@ -127,11 +127,11 @@ CREATE TABLE payments (
 );
 
 -- EVENT ENUM
-CREATE TYPE PLAN_TYPE AS ENUM('VIEW_BOOTH','VIEW_PRODUCT','ADD_TO_CART','PURCHASE');
+CREATE TYPE EVENT_TYPE AS ENUM('VIEW_BOOTH','VIEW_PRODUCT','ADD_TO_CART','PURCHASE');
 -- EVENT TABLES
 CREATE TABLE events (
     event_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    event_type PLAN_TYPE NOT NULL,
+    event_type EVENT_TYPE NOT NULL,
     event_timestamp TIMESTAMP,
     
     user_id INT REFERENCES users(id) ON DELETE RESTRICT -- attends relation
@@ -159,7 +159,7 @@ CREATE TABLE golden_booths (
         REFERENCES booths(id)
         ON DELETE CASCADE,
 
-    plan_id INT REFERENCES plans(plan_id) ON DELETE RESTRICT -- OWNS realations
+    plan_id INT REFERENCES plans(id) ON DELETE RESTRICT -- OWNS realations
 );
 
 -- STORY TABLES
@@ -213,35 +213,35 @@ CREATE TABLE discount_codes (
 
 -- HAS realation table
 CREATE TABLE users_has_dicount_code (
-    user_id INT REFERENCES users(user_id) ON DELETE RESTRICT,
-    code_id INT REFERENCES discount_codes(code_id) ON DELETE RESTRICT,
+    user_id INT REFERENCES users(id) ON DELETE RESTRICT,
+    code_id INT REFERENCES discount_codes(id) ON DELETE RESTRICT,
 
     PRIMARY KEY (user_id, code_id) 
 );
 
 -- VIP TABELS
 CREATE TABLE vips (
-    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id INT GENERATED ALWAYS AS IDENTITY,
     user_id INT NOT NULL,
     end_date TIMESTAMP WITH TIME ZONE NOT NULL,
 
     CONSTRAINT pk_vips PRIMARY KEY (id, user_id),
 
     CONSTRAINT fk_vips_user_id
-        FOREIGN KEY
-        REFERENCES users(user_id)
+        FOREIGN KEY (user_id)
+        REFERENCES users(id)
         ON DELETE CASCADE
-        ON UPDATE CASCADE
+        ON UPDATE CASCADE,
 
-    plan_id INT REFERENCES plans(plan_id) ON DELETE RESTRICT -- OWNS realtions
+    plan_id INT REFERENCES plans(id) ON DELETE RESTRICT -- OWNS realtions
 );
 
 -- STATUS ENUM
-CREATE TYPE STATUS_TYPE AS ENUM('PENDIGN','REJECTED','ACCEPTED'); 
+CREATE TYPE STATUS_TYPE AS ENUM('PENDING','REJECTED','ACCEPTED'); 
 -- BOOTH_REQUEST TABLE
 CREATE TABLE booth_requests (
     user_id INT REFERENCES users(id) ON DELETE RESTRICT,
-    employee_id INT REFERENCES supports(employee_id) ON DELETE RESTRICT,
+    employee_id INT REFERENCES supports(id) ON DELETE RESTRICT,
     request_id INT GENERATED ALWAYS AS IDENTITY,
     PRIMARY KEY(user_id, employee_id, request_id),
 
