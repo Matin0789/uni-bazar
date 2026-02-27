@@ -325,6 +325,28 @@ CREATE TABLE badges (
     name VARCHAR(100),
 );
 
+CREATE TABLE badge_approval (
+    id INT GENERATED ALWAYS AS IDENTITY,
+    employee_id INT REFERENCES supports(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    
+    order_item_id INT REFERENCES order_item_comment(item_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    comment_id INT REFERENCES order_item_comment(id) ON DELETE CASCADE ON UPDATE CASCADE,
+
+    PRIMARY KEY (id, employee_id, order_item_id, comment_id),
+
+    end_date DATE,
+    status status_type NOT NULL DEFAULT 'pending',
+
+);
+
+CREATE TABLE badge_badge_approval_assigned_to_booth (
+    booth_id INT REFERENCES booths(id) ON DELETE RESTRICT,
+    badge_id INT REFERENCES badges(id) ON DELETE RESTRICT,
+    badge_approval_id INT REFERENCES badge_approval(id) ON DELETE RESTRICT,
+
+    PRIMARY KEY (booth_id, badge_id, badge_approval_id)
+);
+
 -- STORY TABLES
 CREATE TABLE story (
     booth_id INT NOT NULL,
@@ -400,7 +422,7 @@ CREATE TABLE vips (
     plan_id INT REFERENCES plans(id) ON DELETE RESTRICT -- OWNS realtions
 );
 
--- BOOTH_REQUEST TABLE
+-- BOOTH_REQUEST TABLE1
 CREATE TABLE booth_requests (
     user_id INT REFERENCES users(id) ON DELETE RESTRICT,
     employee_id INT REFERENCES supports(id) ON DELETE RESTRICT,
