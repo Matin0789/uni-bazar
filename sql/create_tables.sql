@@ -90,8 +90,8 @@ CREATE TABLE cart_items (
 -- PRODUCT TABLE
 CREATE TYPE product_category AS ENUM ('Good', 'Service');
 
-CREATE TABLE product (
-    product_id SERIAL PRIMARY KEY,
+CREATE TABLE products (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     description TEXT,
     unit VARCHAR(50),
@@ -103,6 +103,24 @@ CREATE TABLE product (
         (product_Type = 'Good' AND stock_Quantity IS NOT NULL) OR
         (product_Type = 'Service' AND stock_Quantity IS NULL)
     )
+);
+
+CREATE TABLE price_histories (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    product_id INT NOT NULL,
+    price BIGINT NOT NULL,
+    valid_from TIMESTAMPTZ NOT NULL,
+    valid_to TIMESTAMPTZ,
+
+    CONSTRAINT pk_price_histories PRIMARY KEY (id, product_id),
+
+    CONSTRAINT fk_price_histories_product_id
+        FOREIGN KEY (product_id) 
+        REFERENCES products(id) 
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+
+    CONSTRAINT check_dates CHECK (valid_to IS NULL OR Valid_from <= Valid_to)
 );
 
 -- ORDER TABLES
